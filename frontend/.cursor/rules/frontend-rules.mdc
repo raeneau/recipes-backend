@@ -1,0 +1,81 @@
+---
+description: 
+globs: 
+---
+# Cursor IDE Rule: Writing React with Next.js
+
+## **1. File Structure Guidelines**
+- Organize files using the **app** router (`/app`) in Next.js 13+ or **pages** router (`/pages`) for older versions.
+- Place components in `/components` and keep API logic in `/app/api` or `/pages/api`.
+
+# Root layout /page.tsx 
+# Home page /dashboard /page.tsx 
+# Nested route /components /Header.tsx
+
+## **2. Coding Best Practices**
+### **2.1 Components**
+- Use **Server Components** by default (`.tsx` without `use client`).
+- Use **Client Components** when state or effects are needed (`"use client"` at the top).
+
+```tsx
+// ✅ Good: Server Component
+export const RecipeList = () => {
+  return <h1>All Recipes</h1>;
+}
+
+// ✅ Good: Client Component
+import { useState } from "react";
+
+export const Counter = () => {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(count + 1)}>Count: {count}</button>;
+}
+```
+
+### **2.2 API Routes**
+- Use Edge Functions where possible for better performance (export const runtime = "edge").
+- Keep API handlers async and return JSON responses.
+
+```tsx
+// /app/api/recipes/route.ts
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json({ recipes: ["Pasta", "Cake"] });
+}
+```
+
+### **2.3 Data Fetching**
+- Use Server Actions in Next.js 14+ for handling forms and mutations.
+- Use fetch() or react-query instead of useEffect() for external API calls.
+
+```tsx
+export default async function Page() {
+  const res = await fetch("https://api.example.com/recipes");
+  const data = await res.json();
+
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+}
+```
+
+3. **Performance & SEO**
+- Use metadata instead of next/head in Next.js 13+.
+- Optimize images using next/image.
+- Enable caching using revalidate in fetch().
+
+```tsx
+export const metadata = {
+  title: "Delicious Recipes",
+  description: "Browse tasty recipes",
+};
+```
+
+4. **Styling**
+- Use Tailwind CSS
+- Global styles should be in /app/globals.css (or /styles/globals.css for /pages router).
+```tsx
+// With Tailwind
+export default function Button() {
+  return <button className="px-4 py-2 bg-blue-500 text-white">Click me</button>;
+}
+```
