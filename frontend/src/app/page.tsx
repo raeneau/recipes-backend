@@ -64,25 +64,30 @@ const Home: NextPage = () => {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
-      {error && (
-        <div className="w-full max-w-2xl mb-4 p-4 text-red-700 bg-red-100 rounded-md">
-          {error}
-        </div>
-      )}
-      
-      {isLoading ? (
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-      ) : (
-        <RecipeList
-          recipes={recipes}
-          onToggleFavorite={handleToggleFavorite}
-        />
-      )}
-      
-      <AddRecipeForm onAdd={handleAddRecipe} />
+    <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold mb-8 text-center text-white">My Recipe Collection</h1>
+        
+        {error && (
+          <div className="w-full max-w-2xl mx-auto mb-4 p-4 text-red-100 bg-red-900 bg-opacity-50 rounded-md">
+            {error}
+          </div>
+        )}
+        
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            <RecipeList
+              recipes={recipes}
+              onToggleFavorite={handleToggleFavorite}
+            />
+            <AddRecipeForm onAdd={handleAddRecipe} />
+          </div>
+        )}
+      </div>
     </main>
   );
 };
