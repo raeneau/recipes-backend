@@ -1,12 +1,12 @@
 'use client';
 
-import { Ingredient } from '../types/Recipe';
+import { Ingredient, RecipeIngredient } from '../types/Recipe';
 import AddIngredientForm from './AddIngredientForm';
 
 interface IngredientListProps {
-  ingredients: Ingredient[];
+  ingredients: RecipeIngredient[];
   onAddIngredient: (ingredient: Omit<Ingredient, 'id'>) => void;
-  onRemoveIngredient?: (id: number) => void;
+  onRemoveIngredient?: (index: number) => void;
   isEditing?: boolean;
 }
 
@@ -32,16 +32,17 @@ export default function IngredientList({
           >
             <div className="flex-1">
               <span className="font-medium text-gray-900">{ingredient.name}</span>
-              <div className="text-sm text-gray-600">
-                {ingredient.amount && `${ingredient.amount} ${ingredient.unit}`}
-                {!ingredient.amount && ingredient.unit === 'to taste' && 'To taste'}
-                {ingredient.isOptional && ' (Optional)'}
+              <div className="text-sm text-gray-700">
+                {ingredient.amount && ingredient.measurement && 
+                  `${ingredient.amount} ${ingredient.measurement}`}
+                {!ingredient.amount && ingredient.measurement === 'to taste' && 'To taste'}
+                {ingredient.is_optional && ' (Optional)'}
               </div>
-              <span className="text-xs text-gray-500 capitalize">{ingredient.category}</span>
+              <span className="text-xs text-gray-600 capitalize">{ingredient.category}</span>
             </div>
             {isEditing && onRemoveIngredient && (
               <button
-                onClick={() => ingredient.id && onRemoveIngredient(ingredient.id)}
+                onClick={() => onRemoveIngredient(index)}
                 className="p-1 text-red-600 hover:text-red-800"
                 aria-label="Remove ingredient"
               >

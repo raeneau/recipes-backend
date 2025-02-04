@@ -45,24 +45,6 @@ const Home: NextPage = () => {
     }
   };
 
-  const handleToggleFavorite = async (id: string) => {
-    try {
-      const recipe = recipes.find(r => r.id === id);
-      if (!recipe) return;
-
-      const updatedRecipe = await recipeService.toggleFavorite(id, !recipe.favorite);
-      setRecipes(prev =>
-        prev.map(recipe =>
-          recipe.id === id ? updatedRecipe : recipe
-        )
-      );
-      setError(null);
-    } catch (err) {
-      setError('Failed to update recipe. Please try again.');
-      console.error('Error updating recipe:', err);
-    }
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <div className="container mx-auto px-4 py-8">
@@ -80,10 +62,7 @@ const Home: NextPage = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <RecipeList
-              recipes={recipes}
-              onToggleFavorite={handleToggleFavorite}
-            />
+            <RecipeList recipes={recipes} />
             <AddRecipeForm onAdd={handleAddRecipe} />
           </div>
         )}
