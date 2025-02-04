@@ -1,0 +1,47 @@
+---
+description: 
+globs: 
+---
+I'm making an app to keep track of my personal favorite recipes. I want to be able to log in and the app keeps track of a username and password with an authentication plugin. The app also keeps track of the recipes a user has saved.
+
+Each recipe should contain:
+- the name of the recipe
+- type of meal (snack, meal, side dish, appetizer, dessert, etc)
+- an estimate of how long it takes to prep
+- an estimate of how long it takes to cook
+- an estimate of any extra time (such as for letting meat rest)
+- total time taken (by adding prep, cook, and extra time)
+- a saved list of actual times it takes to prep, cook, and total (so the user can eventually get an average of how long it takes them to realistically prep something)
+- difficulty of the recipe
+- type of cuisine (american, french, italian, indian, lebanese, etc)
+- ingredients in the recipe
+- links to substitute/alternate ways to make the recipe
+- servings the original recipe makes
+- the ability to change the number of servings that will accurately increase/reduce the ingredient amount to match (such as if a recipe calls for 2 cups of flour and makes 4 servings, the user can change the servings to 8 and the recipe will call for 4 cups of flour)
+- directions for the recipe
+- extra notes that the user can save
+- a personal rating of the recipe (0-5 stars)
+- a community rating of the recipe that includes: a star system (0-5) and a written review
+- the ability to mark a recipe as made every time the user uses it
+- the number of times the user has made the recipe ("you've made this recipe {number} times!")
+- when the last time the user made the recipe was ("last eaten X days ago")
+- the number of times the entire community has made the recipe, including duplicate users who made the recipe multiple times ("users have made this recipe {number} times!")
+- the number of unique users that made the recipe
+- allergen & sensitivity tags (soy, gluten, peanut, etc)
+- diet tags (vegetarian, vegan, pescetarian, keto, etc)
+- ability to favorite a recipe or add it to a user-created list
+- source of the recipe
+- any unusual or special kitchen tools/utensils needed (like a blender or mixer)
+
+Users should be able to search and filter for a recipe by name, type, total time taken, difficulty, community star rating, allergens, diet tags, and number of times the community has made it. They should also be able to search for recipes by ingredients.
+
+Ingredients inside of a recipe should display the name, amount, measurement (teaspoon, tablespoon, cups, oz, etc), type (meat, dairy, produce, pantry, etc), and if it is an optional ingredient (such as garnish). They could also include a link to substitutes for ingredients (like butter -> margarine, or olive oil -> avocado oil when necessary)
+
+A user should be able to add recipes to custom-made and custom-named "recipe books". For example, a user could make a list called "Cookies" with an optional description "my favorite cookie recipes" and filled with recipes for cookies such as snickerdoodle, chocolate chip, and peanut butter
+
+A user should also be able to share recipes through links to social media, a website URL, and messaging apps.
+
+A user can "friend" other users to see what recipes they have been cooking.
+
+A user's profile has multiple different levels of visibility: public, friends-only, and private. A user can change the level of privacy for individual sections to allow them to choose who sees what. They could just show certain recipes, their favorites, and/or all recipes. It should also display how many times they used recipes and how many unique recipes they've made.
+
