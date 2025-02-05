@@ -1,4 +1,4 @@
-import { Recipe } from '../types/Recipe';
+import { Recipe, CreateRecipeDTO } from '../types/Recipe';
 
 const API_URL = 'http://localhost:3001/api';
 
@@ -18,9 +18,9 @@ export const recipeService = {
   },
 
   /**
-   * Create a new recipe
+   * Create a new recipe with ingredients
    */
-  async createRecipe(recipe: Omit<Recipe, 'id'>): Promise<Recipe> {
+  async createRecipe(recipe: CreateRecipeDTO): Promise<Recipe> {
     const response = await fetch(`${API_URL}/recipes`, {
       method: 'POST',
       headers: {
@@ -28,9 +28,12 @@ export const recipeService = {
       },
       body: JSON.stringify(recipe),
     });
+    
     if (!response.ok) {
-      throw new Error('Failed to create recipe');
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create recipe');
     }
+    
     return response.json();
   },
 

@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { Ingredient, IngredientCategory, MeasurementUnit } from '../types/Recipe';
+import { useState, useEffect, useRef } from 'react';
+import { Ingredient, IngredientCategory, MeasurementUnit, RecipeIngredient } from '../types/Recipe';
+import { ingredientService } from '../services/ingredientService';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface AddIngredientFormProps {
-  onAdd: (ingredient: Omit<Ingredient, 'id'>) => void;
+  onAdd: (ingredient: Omit<RecipeIngredient, 'id' | 'ingredient_id'>) => void;
 }
 
 /**
  * AddIngredientForm Component
- * Form fields for adding new ingredients to a recipe
+ * Form fields for adding new ingredients to a recipe with search functionality
  */
 export default function AddIngredientForm({ onAdd }: AddIngredientFormProps) {
   const [name, setName] = useState('');
@@ -18,38 +20,95 @@ export default function AddIngredientForm({ onAdd }: AddIngredientFormProps) {
   const [unit, setUnit] = useState<MeasurementUnit>('piece');
   const [isOptional, setIsOptional] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState<Ingredient[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debouncedSearch = useDebounce(name, 300);
 
-  const handleAddClick = () => {
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Search for ingredients when name changes
+  useEffect(() => {
+    const searchIngredients = async () => {
+      if (debouncedSearch.trim().length < 2) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const results = await ingredientService.searchIngredients(debouncedSearch);
+        setSearchResults(results);
+        setShowResults(true);
+      } catch (err) {
+        console.error('Error searching ingredients:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    searchIngredients();
+  }, [debouncedSearch]);
+
+  const handleSelectIngredient = (ingredient: Ingredient) => {
+    setName(ingredient.name);
+    setCategory(ingredient.category);
+    setShowResults(false);
+  };
+
+  const handleAddClick = async () => {
     if (!name.trim()) {
       setError('Ingredient name is required');
       return;
     }
 
-    const newIngredient = {
-      name: name.trim(),
-      category,
-      amount: amount ? Number(amount) : undefined,
-      unit,
-      isOptional,
-    };
+    try {
+      // Create or get existing ingredient
+      const ingredient = await ingredientService.createIngredient({
+        name: name.trim(),
+        category,
+      });
 
-    onAdd(newIngredient);
+      // Add to recipe with measurement info
+      onAdd({
+        ...ingredient,
+        amount: amount ? Number(amount) : undefined,
+        measurement: unit,
+        is_optional: isOptional,
+      });
 
-    // Reset fields
-    setName('');
-    setAmount('');
-    setIsOptional(false);
-    setError('');
+      // Reset form
+      setName('');
+      setAmount('');
+      setIsOptional(false);
+      setError('');
+      setSearchResults([]);
+    } catch (err) {
+      setError('Failed to add ingredient. Please try again.');
+      console.error('Error adding ingredient:', err);
+    }
   };
 
-  const inputClasses = "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 placeholder-gray-500";
-  const selectClasses = "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900";
+  const inputClasses = "mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder-gray-400";
+  const selectClasses = "mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500";
 
   return (
-    <div className="space-y-4 bg-white p-4 rounded-lg border">
+    <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="ingredient-name" className="block text-sm font-semibold text-gray-900">
+        {/* Ingredient Name with Search */}
+        <div className="relative" ref={searchRef}>
+          <label htmlFor="ingredient-name" className="block text-sm font-medium text-gray-300">
             Name
           </label>
           <input
@@ -60,14 +119,36 @@ export default function AddIngredientForm({ onAdd }: AddIngredientFormProps) {
               setName(e.target.value);
               setError('');
             }}
-            placeholder="Enter ingredient name"
-            className={`${inputClasses} ${error ? 'border-red-300' : 'border-gray-300'}`}
+            placeholder="Search or enter ingredient name"
+            className={`${inputClasses} ${error ? 'border-red-300' : 'border-gray-600'}`}
           />
-          {error && <p className="mt-1 text-sm text-red-600 font-medium">{error}</p>}
+          {error && <p className="mt-1 text-sm text-red-400 font-medium">{error}</p>}
+          
+          {/* Search Results Dropdown */}
+          {showResults && searchResults.length > 0 && (
+            <div className="absolute z-10 w-full mt-1 bg-gray-700 rounded-md shadow-lg border border-gray-600">
+              {searchResults.map((ingredient) => (
+                <button
+                  key={ingredient.id}
+                  onClick={() => handleSelectIngredient(ingredient)}
+                  className="w-full px-4 py-2 text-left hover:bg-gray-600 focus:outline-none focus:bg-gray-600"
+                >
+                  <span className="font-medium text-white">{ingredient.name}</span>
+                  <span className="ml-2 text-sm text-gray-300 capitalize">({ingredient.category})</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {isLoading && (
+            <div className="absolute right-3 top-9">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500"></div>
+            </div>
+          )}
         </div>
         
+        {/* Category */}
         <div>
-          <label htmlFor="ingredient-category" className="block text-sm font-semibold text-gray-900">
+          <label htmlFor="ingredient-category" className="block text-sm font-medium text-gray-300">
             Category
           </label>
           <select
@@ -84,8 +165,9 @@ export default function AddIngredientForm({ onAdd }: AddIngredientFormProps) {
           </select>
         </div>
 
+        {/* Amount */}
         <div>
-          <label htmlFor="ingredient-amount" className="block text-sm font-semibold text-gray-900">
+          <label htmlFor="ingredient-amount" className="block text-sm font-medium text-gray-300">
             Amount
           </label>
           <input
@@ -100,8 +182,9 @@ export default function AddIngredientForm({ onAdd }: AddIngredientFormProps) {
           />
         </div>
 
+        {/* Unit */}
         <div>
-          <label htmlFor="ingredient-unit" className="block text-sm font-semibold text-gray-900">
+          <label htmlFor="ingredient-unit" className="block text-sm font-medium text-gray-300">
             Unit
           </label>
           <select
@@ -119,23 +202,25 @@ export default function AddIngredientForm({ onAdd }: AddIngredientFormProps) {
         </div>
       </div>
 
+      {/* Optional Checkbox */}
       <div className="flex items-center">
         <input
           type="checkbox"
           id="ingredient-optional"
           checked={isOptional}
           onChange={(e) => setIsOptional(e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          className="h-4 w-4 rounded border-gray-600 text-indigo-600 focus:ring-indigo-500 bg-gray-700"
         />
-        <label htmlFor="ingredient-optional" className="ml-2 block text-sm font-semibold text-gray-900">
+        <label htmlFor="ingredient-optional" className="ml-2 block text-sm font-medium text-gray-300">
           Optional ingredient
         </label>
       </div>
 
+      {/* Add Button */}
       <button
         type="button"
         onClick={handleAddClick}
-        className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+        className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       >
         Add Ingredient
       </button>

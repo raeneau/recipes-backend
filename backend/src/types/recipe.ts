@@ -67,8 +67,25 @@ export const RecipeIngredientSchema = z.object({
 export const RecipeSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1, 'Recipe name is required'),
+  description: z.string().max(300).optional(),
+  meal_type: z.nativeEnum(MealType).optional(),
+  prep_time: z.number().min(0).optional(),
+  cook_time: z.number().min(0).optional(),
+  extra_time: z.number().min(0).optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']),
-  ingredients: z.array(RecipeIngredientSchema).default([]),
+  cuisine: z.string().optional(),
+  servings: z.number().positive().optional(),
+  directions: z.string().optional(),
+  source_url: z.string().url().optional().or(z.literal('')),  // Allow empty string or valid URL
+  special_tools: z.array(z.string()).optional(),
+  ingredients: z.array(z.object({
+    name: z.string(),
+    category: z.nativeEnum(IngredientCategory),
+    amount: z.number().positive().optional(),
+    measurement: z.string().optional(),
+    is_optional: z.boolean().default(false),
+    ingredient_id: z.string().uuid().optional(),  // Make optional since we might not have it yet
+  })).default([]),
 });
 
 export type MealType = typeof MealType[keyof typeof MealType];
