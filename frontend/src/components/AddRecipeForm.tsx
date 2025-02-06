@@ -80,7 +80,7 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
     }
 
     try {
-      await onAdd({ ...data, ingredients });
+      await onAdd({ ...data, ingredients: ingredients as RecipeIngredient[] });
       setIngredients([]);
       reset();
     } catch (error) {

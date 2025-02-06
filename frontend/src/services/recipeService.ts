@@ -1,4 +1,4 @@
-import { Recipe, CreateRecipeDTO } from '../types/Recipe';
+import { Recipe, CreateRecipeDTO, UpdateRecipeDTO } from '../types/Recipe';
 
 const API_URL = 'http://localhost:3001/api';
 
@@ -32,6 +32,26 @@ export const recipeService = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Failed to create recipe');
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * Update an existing recipe
+   */
+  async updateRecipe(id: string, recipe: UpdateRecipeDTO): Promise<Recipe> {
+    const response = await fetch(`${API_URL}/recipes/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(recipe),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update recipe');
     }
     
     return response.json();
