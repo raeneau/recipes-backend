@@ -1,21 +1,175 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-heading: 'Montserrat', var(--font-sans);
+  }
+
+  html {
+    @apply antialiased;
+    font-family: var(--font-sans);
+  }
+
+  body {
+    @apply bg-neutral-50 dark:bg-surface-darker text-neutral-900 dark:text-white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold tracking-tight;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center
+           px-4 py-2 rounded-lg
+           font-medium transition-colors
+           focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 text-white
+           hover:bg-primary-700
+           focus:ring-primary-500;
+  }
+
+  .btn-secondary {
+    @apply bg-neutral-200 text-neutral-800
+           hover:bg-neutral-300
+           focus:ring-neutral-400
+           dark:bg-neutral-700 dark:text-white
+           dark:hover:bg-neutral-600;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 text-white
+           hover:bg-red-700
+           focus:ring-red-500;
+  }
+
+  .input {
+    @apply w-full px-3 py-2 rounded-lg
+           border border-neutral-300 dark:border-neutral-600
+           bg-white dark:bg-neutral-800
+           text-neutral-900 dark:text-white
+           focus:outline-none focus:ring-2 focus:ring-primary-500
+           placeholder:text-neutral-400 dark:placeholder:text-neutral-500;
+  }
+
+  .card {
+    @apply rounded-xl shadow-md
+           bg-white dark:bg-surface-dark
+           overflow-hidden
+           transition-shadow duration-200
+           hover:shadow-lg;
+  }
+
+  .badge {
+    @apply inline-flex items-center
+           px-2.5 py-1 rounded-full
+           text-sm font-medium;
+  }
+
+  .badge-easy {
+    @apply bg-green-100 text-green-800
+           dark:bg-green-900 dark:text-green-100;
+  }
+
+  .badge-medium {
+    @apply bg-yellow-100 text-yellow-800
+           dark:bg-yellow-900 dark:text-yellow-100;
+  }
+
+  .badge-hard {
+    @apply bg-red-100 text-red-800
+           dark:bg-red-900 dark:text-red-100;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section {
+    @apply py-12 sm:py-16 lg:py-20;
+  }
+
+  .form-group {
+    @apply space-y-2;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-neutral-700 dark:text-neutral-300;
+  }
+
+  .form-error {
+    @apply mt-1 text-sm text-red-600 dark:text-red-400;
+  }
+
+  .recipe-grid {
+    @apply grid gap-6
+           grid-cols-1
+           sm:grid-cols-2
+           lg:grid-cols-3
+           xl:grid-cols-4;
+  }
+
+  .recipe-card {
+    @apply card flex flex-col h-full;
+  }
+
+  .recipe-card-header {
+    @apply p-4 flex flex-col space-y-2;
+  }
+
+  .recipe-card-content {
+    @apply p-4 flex-1;
+  }
+
+  .recipe-card-footer {
+    @apply p-4 border-t dark:border-neutral-700;
+  }
+
+  .ingredient-list {
+    @apply divide-y dark:divide-neutral-700;
+  }
+
+  .ingredient-item {
+    @apply py-3 flex items-center justify-between;
+  }
+}
+
+/* Custom scrollbar for modern browsers */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-200 dark:bg-neutral-700;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-400 dark:bg-neutral-600
+           rounded-full
+           hover:bg-neutral-500 dark:hover:bg-neutral-500;
+  }
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

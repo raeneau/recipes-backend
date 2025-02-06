@@ -26,7 +26,7 @@ const recipeFormSchema = z.object({
   }),
   cuisine: z.string().optional(),
   servings: z.number().positive().optional(),
-  directions: z.string().optional(),
+  directions: z.string().min(1, 'Directions are required'),
   source_url: z.string().url().optional().or(z.literal('')),  // Allow empty string or valid URL
   special_tools: z.array(z.string()).optional(),
 });
@@ -90,56 +90,53 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-8 p-6 bg-gray-800 rounded-lg shadow-xl">
-      <h2 className="text-2xl font-bold mb-6 text-white">Add New Recipe</h2>
-      
+    <div className="p-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Recipe Name Field */}
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+        {/* Recipe Name */}
+        <div className="form-group">
+          <label htmlFor="name" className="form-label">
             Recipe Name
           </label>
           <input
             type="text"
             id="name"
             {...register('name')}
-            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                     shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="input"
+            placeholder="Enter recipe name"
           />
           {errors.name && (
-            <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
+            <p className="form-error">{errors.name.message}</p>
           )}
         </div>
 
-        {/* Description Field */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-300">
+        {/* Description */}
+        <div className="form-group">
+          <label htmlFor="description" className="form-label">
             Description
           </label>
           <textarea
             id="description"
             {...register('description')}
-            rows={4}
-            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                     shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            rows={3}
+            className="input"
+            placeholder="Brief description of your recipe"
           />
           {errors.description && (
-            <p className="mt-1 text-sm text-red-400">{errors.description.message}</p>
+            <p className="form-error">{errors.description.message}</p>
           )}
         </div>
 
         {/* Recipe Details Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Meal Type */}
-          <div>
-            <label htmlFor="meal_type" className="block text-sm font-medium text-gray-300">
+          <div className="form-group">
+            <label htmlFor="meal_type" className="form-label">
               Meal Type
             </label>
             <select
               id="meal_type"
               {...register('meal_type')}
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                       shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="input"
             >
               {Object.entries(MealType).map(([key, value]) => (
                 <option key={value} value={value}>
@@ -150,15 +147,14 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
           </div>
 
           {/* Difficulty */}
-          <div>
-            <label htmlFor="difficulty" className="block text-sm font-medium text-gray-300">
+          <div className="form-group">
+            <label htmlFor="difficulty" className="form-label">
               Difficulty
             </label>
             <select
               id="difficulty"
               {...register('difficulty')}
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                       shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="input"
             >
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
@@ -167,8 +163,8 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
           </div>
 
           {/* Prep Time */}
-          <div>
-            <label htmlFor="prep_time" className="block text-sm font-medium text-gray-300">
+          <div className="form-group">
+            <label htmlFor="prep_time" className="form-label">
               Prep Time (minutes)
             </label>
             <input
@@ -176,14 +172,13 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
               id="prep_time"
               {...register('prep_time', { valueAsNumber: true })}
               min="0"
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                       shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="input"
             />
           </div>
 
           {/* Cook Time */}
-          <div>
-            <label htmlFor="cook_time" className="block text-sm font-medium text-gray-300">
+          <div className="form-group">
+            <label htmlFor="cook_time" className="form-label">
               Cook Time (minutes)
             </label>
             <input
@@ -191,14 +186,13 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
               id="cook_time"
               {...register('cook_time', { valueAsNumber: true })}
               min="0"
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                       shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="input"
             />
           </div>
 
           {/* Servings */}
-          <div>
-            <label htmlFor="servings" className="block text-sm font-medium text-gray-300">
+          <div className="form-group">
+            <label htmlFor="servings" className="form-label">
               Servings
             </label>
             <input
@@ -206,14 +200,13 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
               id="servings"
               {...register('servings', { valueAsNumber: true })}
               min="1"
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                       shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="input"
             />
           </div>
 
           {/* Cuisine */}
-          <div>
-            <label htmlFor="cuisine" className="block text-sm font-medium text-gray-300">
+          <div className="form-group">
+            <label htmlFor="cuisine" className="form-label">
               Cuisine
             </label>
             <input
@@ -221,29 +214,31 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
               id="cuisine"
               {...register('cuisine')}
               placeholder="e.g., Italian, Mexican"
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                       shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="input"
             />
           </div>
         </div>
 
         {/* Directions */}
-        <div>
-          <label htmlFor="directions" className="block text-sm font-medium text-gray-300">
+        <div className="form-group">
+          <label htmlFor="directions" className="form-label">
             Directions
           </label>
           <textarea
             id="directions"
             {...register('directions')}
-            rows={6}
-            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                     shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            rows={4}
+            className="input"
+            placeholder="Step by step instructions for your recipe"
           />
+          {errors.directions && (
+            <p className="form-error">{errors.directions.message}</p>
+          )}
         </div>
 
         {/* Source URL */}
-        <div>
-          <label htmlFor="source_url" className="block text-sm font-medium text-gray-300">
+        <div className="form-group">
+          <label htmlFor="source_url" className="form-label">
             Source URL
           </label>
           <input
@@ -251,36 +246,45 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
             id="source_url"
             {...register('source_url')}
             placeholder="https://example.com/recipe"
-            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white 
-                     shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="input"
           />
+          {errors.source_url && (
+            <p className="form-error">{errors.source_url.message}</p>
+          )}
         </div>
 
         {/* Ingredients Section */}
-        <div className="border-t border-gray-600 pt-6">
-          <h3 className="text-lg font-medium text-white mb-4">Ingredients</h3>
+        <div className="border-t border-neutral-200 dark:border-neutral-700 pt-6">
+          <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-4">
+            Ingredients
+          </h3>
           
           {/* Ingredient List */}
           {ingredients.length > 0 && (
-            <div className="mb-4 space-y-2">
+            <div className="mb-6 space-y-2">
               {ingredients.map((ingredient, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 bg-gray-700 rounded-md"
+                  className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg"
                 >
                   <div className="flex-1">
-                    <span className="text-white font-medium">{ingredient.name}</span>
-                    <div className="text-sm text-gray-300">
+                    <span className="font-medium text-neutral-900 dark:text-white">
+                      {ingredient.name}
+                    </span>
+                    <div className="text-sm text-neutral-600 dark:text-neutral-400">
                       {ingredient.amount && ingredient.measurement && 
                         `${ingredient.amount} ${ingredient.measurement}`}
                       {ingredient.is_optional && ' (Optional)'}
                     </div>
-                    <span className="text-xs text-gray-400 capitalize">{ingredient.category}</span>
+                    <span className="text-xs text-neutral-500 dark:text-neutral-500 capitalize">
+                      {ingredient.category}
+                    </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleRemoveIngredient(index)}
-                    className="p-1 text-gray-400 hover:text-red-400"
+                    className="p-1 text-neutral-400 hover:text-red-500 dark:text-neutral-500 dark:hover:text-red-400 transition-colors"
+                    aria-label="Remove ingredient"
                   >
                     ×
                   </button>
@@ -290,22 +294,31 @@ const AddRecipeForm: React.FC<AddRecipeFormProps> = ({ onAdd }) => {
           )}
 
           {/* Add Ingredient Form */}
-          <div className="bg-gray-700 p-4 rounded-md">
+          <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg">
             <AddIngredientForm onAdd={handleAddIngredient} />
           </div>
         </div>
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md 
-                   shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 
-                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
-                   disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? 'Adding...' : 'Add Recipe'}
-        </button>
+        <div className="pt-6">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="btn btn-primary w-full"
+          >
+            {isSubmitting ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Adding Recipe...
+              </span>
+            ) : (
+              'Add Recipe'
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );

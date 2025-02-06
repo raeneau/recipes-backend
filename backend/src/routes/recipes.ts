@@ -168,7 +168,7 @@ router.post('/', async (req, res) => {
         extra_time: validatedData.extra_time || null,
         cuisine: validatedData.cuisine || null,
         servings: validatedData.servings || null,
-        directions: validatedData.directions || null,
+        directions: validatedData.directions || '',  // Provide empty string as fallback
         source_url: validatedData.source_url || null,
         special_tools: validatedData.special_tools || [],
         recipe_ingredients: {
@@ -184,29 +184,45 @@ router.post('/', async (req, res) => {
       }
     });
 
+    type RecipeWithIngredients = typeof recipe & {
+      recipe_ingredients: Array<{
+        id: string;
+        ingredient_id: string | null;
+        ingredients: {
+          name: string;
+          category: string | null;
+        } | null;
+        amount: number | null;
+        measurement: string | null;
+        is_optional: boolean | null;
+      }>;
+    };
+
+    const recipeWithIngredients = recipe as RecipeWithIngredients;
+
     // Transform the response to match our API format
     const formattedRecipe = {
-      id: recipe.id,
-      name: recipe.name,
-      difficulty: recipe.difficulty,
-      description: recipe.description,
-      meal_type: recipe.meal_type,
-      prep_time: recipe.prep_time,
-      cook_time: recipe.cook_time,
-      extra_time: recipe.extra_time,
-      cuisine: recipe.cuisine,
-      servings: recipe.servings,
-      directions: recipe.directions,
-      source_url: recipe.source_url,
-      special_tools: recipe.special_tools || [],
-      ingredients: recipe.recipe_ingredients.map((ri: any) => ({
+      id: recipeWithIngredients.id,
+      name: recipeWithIngredients.name,
+      difficulty: recipeWithIngredients.difficulty,
+      description: recipeWithIngredients.description,
+      meal_type: recipeWithIngredients.meal_type,
+      prep_time: recipeWithIngredients.prep_time,
+      cook_time: recipeWithIngredients.cook_time,
+      extra_time: recipeWithIngredients.extra_time,
+      cuisine: recipeWithIngredients.cuisine,
+      servings: recipeWithIngredients.servings,
+      directions: recipeWithIngredients.directions,
+      source_url: recipeWithIngredients.source_url,
+      special_tools: recipeWithIngredients.special_tools || [],
+      ingredients: recipeWithIngredients.recipe_ingredients.map((ri) => ({
         id: ri.id,
-        ingredient_id: ri.ingredient_id,
-        name: ri.ingredients.name,
-        category: ri.ingredients.category,
+        ingredient_id: ri.ingredient_id || '',
+        name: ri.ingredients?.name || '',
+        category: ri.ingredients?.category || '',
         amount: ri.amount,
         measurement: ri.measurement,
-        is_optional: ri.is_optional
+        is_optional: ri.is_optional || false
       }))
     };
 
