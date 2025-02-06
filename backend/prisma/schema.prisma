@@ -7,9 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// Enable UUID extension
+model users {
+  id                              String           @id @default(uuid()) @db.Uuid
+  username                        String           @unique @db.VarChar(255)
+  email                           String           @unique @db.VarChar(255)
+  password_hash                   String
+  profile_visibility              String?          @default("friends-only") @db.VarChar(50)
+  created_at                      DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at                      DateTime?        @default(now()) @db.Timestamp(6)
+  friends_friends_user1_idTousers friends[]        @relation("friends_user1_idTousers")
+  friends_friends_user2_idTousers friends[]        @relation("friends_user2_idTousers")
+  recipe_books                    recipe_books[]
+  recipe_reviews                  recipe_reviews[]
+  recipe_shares                   recipe_shares[]
+  recipes                         recipes[]
+  user_recipes                    user_recipes[]
+}
+
 model friends {
-  id                            String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                            String  @id @default(uuid()) @db.Uuid
   user1_id                      String? @db.Uuid
   user2_id                      String? @db.Uuid
   status                        String? @default("pending") @db.VarChar(50)
@@ -17,25 +34,16 @@ model friends {
   users_friends_user2_idTousers users?  @relation("friends_user2_idTousers", fields: [user2_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model ingredients {
-  id                 String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                 String               @id @default(uuid()) @db.Uuid
   name               String               @unique @db.VarChar(255)
   category           String?              @db.VarChar(50)
   substitutes        String[]
   recipe_ingredients recipe_ingredients[]
 }
 
-model recipe_book_entries {
-  id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  recipe_book_id String?       @db.Uuid
-  recipe_id      String?       @db.Uuid
-  recipe_books   recipe_books? @relation(fields: [recipe_book_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  recipes        recipes?      @relation(fields: [recipe_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-}
-
 model recipe_books {
-  id                  String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                  String                @id @default(uuid()) @db.Uuid
   user_id             String?               @db.Uuid
   name                String                @db.VarChar(255)
   description         String?
@@ -43,9 +51,16 @@ model recipe_books {
   users               users?                @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model recipe_book_entries {
+  id             String        @id @default(uuid()) @db.Uuid
+  recipe_book_id String?       @db.Uuid
+  recipe_id      String?       @db.Uuid
+  recipe_books   recipe_books? @relation(fields: [recipe_book_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  recipes        recipes?      @relation(fields: [recipe_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
 model recipe_ingredients {
-  id            String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String       @id @default(uuid()) @db.Uuid
   recipe_id     String?      @db.Uuid
   ingredient_id String?      @db.Uuid
   amount        Decimal?     @db.Decimal(10, 2)
@@ -55,9 +70,8 @@ model recipe_ingredients {
   recipes       recipes?     @relation(fields: [recipe_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model recipe_reviews {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
   user_id     String?   @db.Uuid
   recipe_id   String?   @db.Uuid
   rating      Decimal?  @db.Decimal(2, 1)
@@ -67,9 +81,8 @@ model recipe_reviews {
   users       users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model recipe_shares {
-  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String    @id @default(uuid()) @db.Uuid
   user_id   String?   @db.Uuid
   recipe_id String?   @db.Uuid
   platform  String?   @db.VarChar(50)
@@ -78,18 +91,16 @@ model recipe_shares {
   users     users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model recipe_tags {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   recipe_id String?  @db.Uuid
   tag_type  String?  @db.VarChar(50)
   tag_value String   @db.VarChar(50)
   recipes   recipes? @relation(fields: [recipe_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model recipes {
-  id                  String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                  String                @id @default(uuid()) @db.Uuid
   user_id             String?               @db.Uuid
   name                String                @db.VarChar(255)
   description         String?               @db.VarChar(300)
@@ -97,7 +108,7 @@ model recipes {
   prep_time           Int?
   cook_time           Int?
   extra_time          Int?
-  total_time          Int?                  @default(dbgenerated("((prep_time + cook_time) + extra_time)"))
+  total_time          Int?
   difficulty          String?               @db.VarChar(50)
   cuisine             String?               @db.VarChar(50)
   servings            Int?
@@ -115,20 +126,8 @@ model recipes {
   user_recipes        user_recipes[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model user_recipe_times {
-  id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_recipe_id String?       @db.Uuid
-  made_at        DateTime?     @default(now()) @db.Timestamp(6)
-  prep_time      Int?
-  cook_time      Int?
-  total_time     Int?          @default(dbgenerated("(prep_time + cook_time)"))
-  user_recipes   user_recipes? @relation(fields: [user_recipe_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model user_recipes {
-  id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String              @id @default(uuid()) @db.Uuid
   user_id           String?             @db.Uuid
   recipe_id         String?             @db.Uuid
   rating            Decimal?            @db.Decimal(2, 1)
@@ -140,20 +139,70 @@ model user_recipes {
   users             users?              @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model users {
-  id                              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  username                        String           @unique @db.VarChar(255)
-  email                           String           @unique @db.VarChar(255)
-  password_hash                   String
-  profile_visibility              String?          @default("friends-only") @db.VarChar(50)
-  created_at                      DateTime?        @default(now()) @db.Timestamp(6)
-  updated_at                      DateTime?        @default(now()) @db.Timestamp(6)
-  friends_friends_user1_idTousers friends[]        @relation("friends_user1_idTousers")
-  friends_friends_user2_idTousers friends[]        @relation("friends_user2_idTousers")
-  recipe_books                    recipe_books[]
-  recipe_reviews                  recipe_reviews[]
-  recipe_shares                   recipe_shares[]
-  recipes                         recipes[]
-  user_recipes                    user_recipes[]
+model user_recipe_times {
+  id             String        @id @default(uuid()) @db.Uuid
+  user_recipe_id String?       @db.Uuid
+  made_at        DateTime?     @default(now()) @db.Timestamp(6)
+  prep_time      Int?
+  cook_time      Int?
+  total_time     Int?
+  user_recipes   user_recipes? @relation(fields: [user_recipe_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  password  String
+  recipes   Recipe[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Recipe {
+  id               String             @id @default(uuid())
+  name             String
+  description      String?
+  difficulty       String
+  meal_type        String?
+  prep_time        Int?
+  cook_time        Int?
+  extra_time       Int?
+  cuisine          String?
+  servings         Int?
+  directions       String
+  source_url       String?
+  special_tools    String[]
+  recipe_ingredients RecipeIngredient[]
+  userId           String
+  user             User               @relation(fields: [userId], references: [id])
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([userId])
+}
+
+model Ingredient {
+  id                String             @id @default(uuid())
+  name              String             @unique
+  category          String?
+  recipe_ingredients RecipeIngredient[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model RecipeIngredient {
+  id            String     @id @default(uuid())
+  recipe        Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId      String
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId  String
+  amount        Float?
+  measurement   String?
+  is_optional   Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([recipeId])
+  @@index([ingredientId])
 }
